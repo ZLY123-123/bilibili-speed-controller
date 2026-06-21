@@ -203,9 +203,9 @@
         top: 88px;
         right: 20px;
         z-index: 2147483646;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 6px 8px;
         padding: 6px 8px;
         border-radius: 10px;
         background: rgba(34, 34, 34, 0.88);
@@ -233,6 +233,11 @@
         white-space: nowrap;
         font-size: 11px;
         opacity: 0.92;
+        align-self: center;
+      }
+
+      #${PANEL_ID} .tm-bili-mini-speed-main {
+        display: contents;
       }
 
       #${PANEL_ID} .tm-bili-mini-left-hold {
@@ -243,6 +248,9 @@
         font-size: 11px;
         line-height: 1;
         white-space: nowrap;
+        grid-column: 1 / -1;
+        justify-self: start;
+        padding-left: 2px;
       }
 
       #${PANEL_ID}.is-disabled .tm-bili-mini-left-hold {
@@ -475,12 +483,14 @@
     panel.id = PANEL_ID;
     panel.className = 'is-disabled';
     panel.innerHTML = `
-      <span class="tm-bili-mini-speed-label">倍速</span>
-      <div id="${FIELD_ID}" class="is-disabled">
-        <input id="${INPUT_ID}" type="number" min="0.1" max="16" step="0.05" disabled>
-        <button id="${TOGGLE_ID}" type="button" aria-label="选择常用倍速" title="常用倍速" disabled>▼</button>
-        <div id="${MENU_ID}" hidden>
-          ${COMMON_RATES.map((rate) => `<button class="tm-bili-mini-speed-option" type="button" data-rate="${rate}">${formatRate(rate)}x</button>`).join('')}
+      <div class="tm-bili-mini-speed-main">
+        <span class="tm-bili-mini-speed-label">倍速</span>
+        <div id="${FIELD_ID}" class="is-disabled">
+          <input id="${INPUT_ID}" type="number" min="0.1" max="16" step="0.05" disabled>
+          <button id="${TOGGLE_ID}" type="button" aria-label="选择常用倍速" title="常用倍速" disabled>▼</button>
+          <div id="${MENU_ID}" hidden>
+            ${COMMON_RATES.map((rate) => `<button class="tm-bili-mini-speed-option" type="button" data-rate="${rate}">${formatRate(rate)}x</button>`).join('')}
+          </div>
         </div>
       </div>
       <label class="tm-bili-mini-left-hold" title="启用后，长按左方向键可临时降速；关闭时保留原本左键行为">

@@ -1,53 +1,78 @@
 # Bilibili Mini Speed Controller
 
-当前版本：`v1.0.0`
+A Tampermonkey userscript for flexible playback speed control on Bilibili.
 
-一个用于 Bilibili 的 Tampermonkey 用户脚本。
+Current version: `v1.0.0`
 
-它会在视频页面右上角显示一个小型倍速面板，支持自定义输入、常用倍速快捷选择、即时生效、位置记忆，以及对方向键临时倍速行为的增强。
+## Features
 
-项目文件：
+- Small floating speed panel on Bilibili video pages
+- Immediate speed changes with no confirm button
+- Preset speed dropdown
+- Remembers your last playback speed
+- Remembers panel position
+- Enhances Bilibili's native right-arrow hold behavior
+- Optional left-arrow hold slowdown mode
 
-- [bilibili-mini-speed.user.js](C:\Users\zly\Desktop\tampermonkey\bilibili-mini-speed-controller\bilibili-mini-speed.user.js)
-- [README.md](C:\Users\zly\Desktop\tampermonkey\bilibili-mini-speed-controller\README.md)
+## What It Does
 
-## 功能概览
+This userscript adds a compact floating playback-speed controller to Bilibili.
 
-- 小型悬浮倍速面板
-- 输入后立即生效
-- 常用倍速下拉菜单
-- 自动记忆常驻倍速
-- 自动记忆面板位置
-- 增强右方向键原生临时倍速逻辑
-- 可选启用长按左方向键临时降速
+You can:
 
-## 面板说明
+- type a custom speed directly
+- choose from common preset speeds
+- drag the panel anywhere on the page
+- keep your preferred speed across sessions
 
-面板默认包含以下元素：
+It also enhances keyboard behavior:
 
-- `倍速` 标签
-- 一个数字输入框
-- 输入框右侧的内嵌下拉按钮
-- 一个带文字说明的勾选框：`左键降速`
+- `Right Arrow` keeps Bilibili's native temporary high-speed flow, but adjusts the temporary speed when your base speed is already high
+- `Left Arrow` can optionally be repurposed into a temporary slowdown feature
 
-### 输入框
+## Supported Pages
 
-你可以直接在输入框中输入倍速，例如：
+- `https://www.bilibili.com/video/*`
+- `https://www.bilibili.com/bangumi/play/*`
 
-- `1`
-- `2.5`
-- `4`
-- `5.5`
+## Installation
 
-也可以使用数字输入框自带的上下调节。
+### Requirements
 
-所有修改都会立即生效，不需要再点确认按钮。
+- [Tampermonkey](https://www.tampermonkey.net/)
 
-### 常用倍速菜单
+### Install Script
 
-点击输入框右侧的小箭头，会弹出常用倍速菜单。
+1. Open the Tampermonkey dashboard.
+2. Create a new script.
+3. Replace the default template with the contents of [bilibili-mini-speed.user.js](C:\Users\zly\Desktop\tampermonkey\bilibili-mini-speed-controller\bilibili-mini-speed.user.js).
+4. Save the script.
+5. Refresh a Bilibili video page.
 
-当前预设包含：
+## Usage
+
+### Speed Panel
+
+The floating panel includes:
+
+- a speed label
+- a numeric input
+- a small preset dropdown button
+- a checkbox labeled `左键降速`
+
+### Change Speed
+
+You can change playback speed by:
+
+- typing a value directly into the input
+- using the input's step controls
+- selecting a preset speed from the dropdown
+
+Changes apply immediately.
+
+### Preset Speeds
+
+Built-in presets:
 
 - `0.5`
 - `0.75`
@@ -63,220 +88,115 @@
 - `5`
 - `5.5`
 
-点击任意一项后立即应用。
+### Drag the Panel
 
-### 左键降速勾选框
+Drag the panel by holding its empty area.
 
-面板中有一个文字标注清楚的勾选项：`左键降速`
+The script remembers the position automatically.
 
-含义如下：
+## Keyboard Behavior
 
-- 未勾选：不启用脚本提供的左方向键临时降速功能
-- 已勾选：启用脚本提供的左方向键临时降速功能
+### Right Arrow
 
-默认状态为：`关闭`
+This script does **not** replace Bilibili's native right-arrow hold logic.
 
-这个开关会被保存，下次打开页面时自动恢复上一次选择。
+Instead, it hooks into the native temporary speed-up flow and adjusts the temporary rate.
 
-### 面板拖动
+Native Bilibili behavior:
 
-你可以鼠标按住面板空白区域进行拖动。
+- hold `Right Arrow`
+- after a short delay, the player enters temporary `3x`
+- release the key to restore the original speed
 
-脚本会自动保存面板位置，下次打开页面时恢复。
+Enhanced behavior:
 
-## 方向键行为
+- base speed below `3x`: stays native, temporary `3x`
+- base speed at `3x`: temporary `4x`
+- base speed above `3x`: temporary `base speed + 1`
 
-### 右方向键
+Examples:
 
-右方向键是“基于 Bilibili 原生逻辑的增强”，不是重写。
+- `3x` -> hold right -> temporary `4x`
+- `4x` -> hold right -> temporary `5x`
+- `5.5x` -> hold right -> temporary `6.5x`
 
-#### 原生行为
+### Left Arrow
 
-Bilibili 原生播放器长按右方向键时，通常会：
+Left-arrow slowdown is **optional**.
 
-- 经过一个短暂延迟
-- 进入原生临时倍速播放状态
-- 默认以 `3x` 临时播放
-- 松开按键后恢复到原本倍速
+It is only enabled when the `左键降速` checkbox is checked.
 
-#### 脚本增强后的行为
+This behavior is **not** based on Bilibili's native left-arrow hold behavior.
 
-脚本沿用原生播放器的：
+Bilibili's native left-arrow hold behavior is closer to continuous seek / progress control, not temporary slowdown.
 
-- 触发时机
-- 临时倍速状态
-- 提示流程
-- 松开后的恢复流程
+When enabled, this script takes over left-arrow behavior:
 
-脚本只会在原生临时倍速已经触发后，调整临时倍速值。
+- tap `Left Arrow`: seek backward `5` seconds
+- hold `Left Arrow`: temporary slowdown
+- release `Left Arrow`: restore the original playback speed
 
-规则如下：
+Slowdown rules:
 
-- 原本播放倍速小于 `3x`：保持原生行为，临时 `3x`
-- 原本播放倍速等于 `3x`：临时 `4x`
-- 原本播放倍速大于 `3x`：临时“当前倍速 + 1”
+- base speed below `3x`: reduce by `0.5x`
+- base speed at or above `3x`: reduce by `1x`
 
-例如：
+Examples:
 
-- 常驻 `3x`，长按右方向键时临时 `4x`
-- 常驻 `4x`，长按右方向键时临时 `5x`
-- 常驻 `5.5x`，长按右方向键时临时 `6.5x`
+- `2x` -> hold left -> temporary `1.5x`
+- `2.5x` -> hold left -> temporary `2x`
+- `3x` -> hold left -> temporary `2x`
+- `4x` -> hold left -> temporary `3x`
 
-松开右方向键后，仍然恢复到原来的常驻倍速。
+## Persistent Settings
 
-### 左方向键
+The script stores the following in `localStorage`:
 
-左方向键不是基于 Bilibili 原生长按左键逻辑增强，而是脚本提供的可选功能。
+- last selected playback speed
+- panel position
+- whether left-arrow slowdown is enabled
 
-#### 原生行为
-
-Bilibili 原生播放器中，长按左方向键更接近进度控制行为，不是临时降速播放。
-
-#### 脚本行为
-
-只有当你勾选了面板中的 `左键降速` 后，脚本才会接管左方向键：
-
-- 短按左方向键：回退 `5` 秒
-- 长按左方向键：进入临时降速
-- 松开左方向键：恢复到原来的常驻倍速
-
-临时降速规则如下：
-
-- 原本播放倍速小于 `3x`：临时降低 `0.5x`
-- 原本播放倍速大于等于 `3x`：临时降低 `1x`
-
-例如：
-
-- 常驻 `2x`，长按左方向键时临时 `1.5x`
-- 常驻 `2.5x`，长按左方向键时临时 `2x`
-- 常驻 `3x`，长按左方向键时临时 `2x`
-- 常驻 `4x`，长按左方向键时临时 `3x`
-
-如果没有勾选 `左键降速`，脚本不会启用这套左键逻辑。
-
-## 临时倍速与常驻倍速
-
-无论是：
-
-- 右方向键触发的临时加速
-- 左方向键触发的临时降速
-
-都不会污染你的常驻倍速设置。
-
-也就是说，临时状态只在按住期间生效，松开后恢复，保存下来的默认倍速仍然是你平时手动设置的值。
-
-## 适用页面
-
-脚本匹配以下 Bilibili 页面：
-
-- `https://www.bilibili.com/video/*`
-- `https://www.bilibili.com/bangumi/play/*`
-
-也就是：
-
-- 普通视频页
-- 番剧 / 剧集播放页
-
-## 安装方法
-
-### 前置要求
-
-需要先安装浏览器扩展：
-
-- [Tampermonkey](https://www.tampermonkey.net/)
-
-### 安装脚本
-
-1. 打开 Tampermonkey 控制面板
-2. 新建脚本
-3. 用 [bilibili-mini-speed.user.js](C:\Users\zly\Desktop\tampermonkey\bilibili-mini-speed-controller\bilibili-mini-speed.user.js) 的内容覆盖默认模板
-4. 保存
-5. 刷新 Bilibili 视频页面
-
-## 使用方法
-
-### 基本倍速设置
-
-1. 打开任意 Bilibili 视频页
-2. 播放视频
-3. 在右上角找到小型倍速面板
-4. 通过以下任一方式设置倍速：
-
-- 输入框手动输入
-- 输入框上下调节
-- 右侧箭头打开常用倍速菜单后点击预设值
-
-### 启用左键降速
-
-1. 在面板中找到 `左键降速`
-2. 勾选复选框
-3. 点击视频区域，确保播放器获得焦点
-4. 长按左方向键测试临时降速
-
-### 使用右方向键增强
-
-1. 先设置你想要的常驻倍速
-2. 点击视频区域，确保播放器获得焦点
-3. 长按右方向键
-
-### 使用左方向键增强
-
-1. 先勾选 `左键降速`
-2. 设置你想要的常驻倍速
-3. 点击视频区域，确保播放器获得焦点
-4. 长按左方向键
-
-## 数据保存
-
-脚本使用浏览器 `localStorage` 保存以下内容：
-
-- 最近一次常驻倍速
-- 面板位置
-- 左键降速开关状态
-
-对应键名：
+Storage keys:
 
 - `tm-bilibili-mini-speed-rate`
 - `tm-bilibili-mini-speed-position`
 - `tm-bilibili-mini-speed-left-hold-enabled`
 
-## 注意事项
+## Notes
 
-### 1. 右方向键增强依赖当前 B 站播放器结构
+### Player Focus
 
-右方向键增强逻辑依赖 Bilibili 当前原生播放器的临时 `3x` 流程。
+Keyboard controls only work when the player has focus.
 
-如果以后 B 站修改了：
+If arrow-key behavior does not respond:
 
-- 长按右键逻辑
-- 临时倍速提示 DOM
-- 播放器内部状态流
+1. click the video area once
+2. try again
 
-那这一部分可能需要重新适配。
+### Editable Areas
 
-### 2. 左方向键是脚本自定义逻辑
+To avoid interfering with typing, the script does not trigger arrow-key temporary speed logic inside editable elements such as:
 
-左方向键临时降速不是 Bilibili 原生默认能力，而是脚本可选提供的行为。
+- text inputs
+- textareas
+- comment boxes
+- contenteditable areas
 
-### 3. 需要播放器焦点
+### Speed Limits
 
-如果左右方向键没有反应，通常是因为键盘焦点不在播放器环境里。
+Playback speed is clamped to:
 
-可以先点击一下视频区域，再进行测试。
+- minimum `0.1x`
+- maximum `16x`
 
-### 4. 可编辑区域不会触发快捷逻辑
+### Compatibility
 
-为了避免干扰输入，脚本在以下区域中不会触发方向键临时倍速逻辑：
+The right-arrow enhancement depends on Bilibili's current native temporary `3x` player flow.
 
-- 倍速输入框
-- 评论输入框
-- 其他文本输入框
-- `textarea`
-- `contenteditable` 区域
+If Bilibili changes its player internals, this part may need future updates.
 
-### 5. 倍速范围限制
+## Files
 
-脚本内部限制倍速范围为：
+- [bilibili-mini-speed.user.js](C:\Users\zly\Desktop\tampermonkey\bilibili-mini-speed-controller\bilibili-mini-speed.user.js)
+- [README.md](C:\Users\zly\Desktop\tampermonkey\bilibili-mini-speed-controller\README.md)
 
-- 最低 `0.1x`
-- 最高 `16x`
