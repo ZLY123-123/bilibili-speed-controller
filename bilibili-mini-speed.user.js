@@ -62,7 +62,8 @@
       return 1;
     }
 
-    return Math.min(16, Math.max(0.1, value));
+    const normalizedValue = Math.round(value * 100) / 100;
+    return Math.min(16, Math.max(0.1, normalizedValue));
   }
 
   function formatRate(rate) {
