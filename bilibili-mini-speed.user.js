@@ -23,6 +23,7 @@
   const LEFT_HOLD_TOGGLE_ID = 'tm-bili-mini-left-hold-toggle';
   const COMMON_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5];
   const LEFT_HOLD_DELAY_MS = 260;
+  const RIGHT_HOLD_DELAY_MS = 320;
   const LEFT_TAP_SEEK_SECONDS = 5;
   const LEFT_HOLD_ENABLED_STORAGE_KEY = 'tm-bilibili-mini-speed-left-hold-enabled';
 
@@ -52,7 +53,8 @@
       isArrowRightDown: false,
       baseRate: null,
       targetRate: null,
-      overrideActive: false
+      overrideActive: false,
+      timerId: null
     };
   }
 
@@ -645,7 +647,31 @@
   }
 
   function resetRightHoldState() {
+    if (rightHoldState.timerId !== null) {
+      window.clearTimeout(rightHoldState.timerId);
+    }
+
     rightHoldState = createRightHoldState();
+  }
+
+  function maybeStartRightHold() {
+    if (
+      !rightHoldState.isArrowRightDown ||
+      rightHoldState.overrideActive ||
+      !currentVideo ||
+      !isVideoPlaying(currentVideo) ||
+      !rightHoldState.targetRate ||
+      !isOfficialRightHoldActive()
+    ) {
+      return;
+    }
+
+    if (Math.abs(clampRate(currentVideo.playbackRate || desiredRate) - 3) > 0.001) {
+      return;
+    }
+
+    rightHoldState.overrideActive = true;
+    applyTemporaryRateOverride(currentVideo, rightHoldState.targetRate);
   }
 
   function maybeStartLeftHold() {
@@ -736,6 +762,9 @@
     rightHoldState.baseRate = clampRate(currentVideo.playbackRate || desiredRate);
     rightHoldState.targetRate = rightHoldState.baseRate >= 3 ? clampRate(rightHoldState.baseRate + 1) : null;
     rightHoldState.overrideActive = false;
+    if (rightHoldState.targetRate) {
+      rightHoldState.timerId = window.setTimeout(maybeStartRightHold, RIGHT_HOLD_DELAY_MS);
+    }
   }
 
   function handleArrowRightKeyUp(event) {
